@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
         {
             playerRb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
             isOnGround = false;
-            if(playerAnimator)
+            if (playerAnimator)
             {
                 int jumpId = Animator.StringToHash("Jump_trig");
                 Debug.Log(jumpId);
@@ -71,5 +71,7 @@ public class PlayerController : MonoBehaviour
     {
         // 게임 오버 처리 및 이벤트 발생
         IsGameOver = true;
+        playerAnimator.SetInteger("DeathType_int", 2);
+        playerAnimator.SetBool("Death_b", true);
     }
 }
