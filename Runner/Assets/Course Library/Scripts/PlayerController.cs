@@ -4,29 +4,20 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public event System.Action OnGameOver;
-
     InputAction jumpAction;
     Rigidbody playerRb;
     Animator playerAnimator;
+
+
+    ParticleSystem smokeParticle;
+
+    ParticleSystem dirtParticle;
 
     [SerializeField]
     float jumpPower = 10;
 
     [SerializeField]
     float gravityModifer = 1;
-
-    private bool isGameOver = false;
-    public bool IsGameOver
-    {
-        get { return isGameOver; }
-        private set
-        {
-            isGameOver = value;
-            if (isGameOver && OnGameOver != null)
-                OnGameOver.Invoke();
-        }
-    }
 
     public bool isOnGround { get; set; } = true;
 
@@ -35,6 +26,10 @@ public class PlayerController : MonoBehaviour
         jumpAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/space");
         playerRb = GetComponent<Rigidbody>();
         playerAnimator = GetComponent<Animator>();
+
+        GameManager.Instance.OnGameOver += PlayerGameOver;
+
+        smokeParticle = transform.Find("FX_Explosion_Smoke").GetComponent<ParticleSystem>();
     }
     private void OnEnable()
     {
@@ -61,17 +56,24 @@ public class PlayerController : MonoBehaviour
             if (playerAnimator)
             {
                 int jumpId = Animator.StringToHash("Jump_trig");
-                Debug.Log(jumpId);
                 playerAnimator.SetTrigger(jumpId);
             }
         }
     }
 
-    public void GameOver()
+    public void PlayerGameOver()
     {
-        // 게임 오버 처리 및 이벤트 발생
-        IsGameOver = true;
-        playerAnimator.SetInteger("DeathType_int", 2);
-        playerAnimator.SetBool("Death_b", true);
+        HandleDeathAnimation();
+        jumpAction.Disable();
+        smokeParticle.Play();
+    }
+
+    private void HandleDeathAnimation()
+    {
+        if (playerAnimator)
+        {
+            playerAnimator.SetInteger("DeathType_int", 2);
+            playerAnimator.SetBool("Death_b", true);
+        }
     }
 }

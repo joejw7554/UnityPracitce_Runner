@@ -1,12 +1,15 @@
+#define TEST
+
 using UnityEngine;
 
 public class ObstacleCollisionHandler : MonoBehaviour, ICollisionHandler
 {
     public void HandleCollision(PlayerController player)
     {
-        Debug.Log("Game Over");
-        Debug.Log("Obstacle Handled");
-        player.GameOver();
+#if TEST
+        Debug.Log($"GameManager Gameover Call Started from {this}");
+#endif 
+        GameManager.Instance.GameOver();
 
     }
 }

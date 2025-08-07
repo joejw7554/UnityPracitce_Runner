@@ -7,7 +7,7 @@ public class MoveLeft : MonoBehaviour
     private void Start()
     {
         PlayerController playerControllerScript = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-        playerControllerScript.OnGameOver += StopMoving;
+        GameManager.Instance.OnGameOver += StopMoving;
     }
 
     void Update()

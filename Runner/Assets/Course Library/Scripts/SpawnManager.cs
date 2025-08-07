@@ -8,9 +8,9 @@ using UnityEngine.Pool;
 public class SpawnManager : MonoBehaviour
 {
     static SpawnManager instance;
-    public static SpawnManager Instance 
-    {  
-       get => instance;
+    public static SpawnManager Instance
+    {
+        get => instance;
     }
 
     PlayerController playerControllerScript;
@@ -96,7 +96,7 @@ public class SpawnManager : MonoBehaviour
     {
         spawnCoroutine = StartCoroutine(SpawnObstacleCoroutine());
         playerControllerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        playerControllerScript.OnGameOver += StopObstacleCoroutine;
+        GameManager.Instance.OnGameOver += StopObstacleCoroutine;
     }
 
     IEnumerator SpawnObstacleCoroutine()
@@ -104,7 +104,6 @@ public class SpawnManager : MonoBehaviour
         while (true)
         {
             float randomWaitTime = Random.Range(MinDelay, MaxDelay);
-            Debug.Log(randomWaitTime);
             int randomIndex = Random.Range(0, ObstaclePools.Count);
             SpawnPoolObject(randomIndex);
             yield return new WaitForSeconds(randomWaitTime);
@@ -127,7 +126,7 @@ public class SpawnManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        playerControllerScript.OnGameOver -= StopObstacleCoroutine;
+        GameManager.Instance.OnGameOver -= StopObstacleCoroutine;
     }
 
 }
