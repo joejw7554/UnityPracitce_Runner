@@ -1,5 +1,26 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+
+public enum ParticleType
+{
+    Smoke, Dirt
+}
+
+public enum SoundEffctType
+{
+    Crash, Jump
+}
+
+[System.Serializable]
+public class SoundEffectEntry
+{
+    public SoundEffctType type;
+    public AudioClip clip;
+}
+
+
 
 
 public class PlayerController : MonoBehaviour
@@ -7,11 +28,16 @@ public class PlayerController : MonoBehaviour
     InputAction jumpAction;
     Rigidbody playerRb;
     Animator playerAnimator;
+    AudioSource playerAudioSource;
+
+    Dictionary<ParticleType, ParticleSystem> particles;
+
+    [SerializeField]
+    List<SoundEffectEntry> audioClipList;
+
+    Dictionary<SoundEffctType, AudioClip> soundEffects;
 
 
-    ParticleSystem smokeParticle;
-
-    ParticleSystem dirtParticle;
 
     [SerializeField]
     float jumpPower = 10;
@@ -26,16 +52,26 @@ public class PlayerController : MonoBehaviour
         jumpAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/space");
         playerRb = GetComponent<Rigidbody>();
         playerAnimator = GetComponent<Animator>();
+        playerAudioSource = GetComponent<AudioSource>();
 
-        GameManager.Instance.OnGameOver += PlayerGameOver;
 
-        smokeParticle = transform.Find("FX_Explosion_Smoke").GetComponent<ParticleSystem>();
+
+        particles = new Dictionary<ParticleType, ParticleSystem>();
+        particles.Add(ParticleType.Smoke, transform.Find("FX_Explosion_Smoke").GetComponent<ParticleSystem>());
+        particles.Add(ParticleType.Dirt, transform.Find("FX_DirtSplatter").GetComponent<ParticleSystem>());
+
+
+        soundEffects=new Dictionary<SoundEffctType, AudioClip>();
+        foreach (var entry in audioClipList)
+        {
+            soundEffects.Add(entry.type, entry.clip);
+        }
+
     }
     private void OnEnable()
     {
         jumpAction.Enable();
     }
-
     private void OnDisable()
     {
         jumpAction.Disable();
@@ -45,6 +81,14 @@ public class PlayerController : MonoBehaviour
     {
         Physics.gravity *= gravityModifer;
         playerRb.constraints = RigidbodyConstraints.FreezePositionZ;
+
+        if (GameManager.Instance)
+        {
+            Debug.Log("Not Null");
+            GameManager.Instance.OnGameOver += PlayerGameOver;
+            PlayParticle(ParticleType.Dirt);
+
+        }
     }
 
     void Update()
@@ -58,6 +102,16 @@ public class PlayerController : MonoBehaviour
                 int jumpId = Animator.StringToHash("Jump_trig");
                 playerAnimator.SetTrigger(jumpId);
             }
+
+            if (playerAudioSource)
+            {
+                PlaySoundeffectOneShot(SoundEffctType.Jump);
+            }
+
+            if (particles.ContainsKey(ParticleType.Dirt))
+            {
+                StopParticle(ParticleType.Dirt);
+            }
         }
     }
 
@@ -65,7 +119,33 @@ public class PlayerController : MonoBehaviour
     {
         HandleDeathAnimation();
         jumpAction.Disable();
-        smokeParticle.Play();
+        StopParticle(ParticleType.Dirt);
+        PlaySoundeffectOneShot(SoundEffctType.Crash);
+    }
+
+    public void PlayParticle(ParticleType particleType)
+    {
+        if (particles.ContainsKey(particleType))
+        {
+            particles[particleType].Play();
+        }
+    }
+
+
+    void PlaySoundeffectOneShot(SoundEffctType effectType)
+    {
+        if (soundEffects.ContainsKey(effectType))
+        {
+            playerAudioSource.PlayOneShot(soundEffects[effectType]);
+        }
+    }
+
+    void StopParticle(ParticleType particleName)
+    {
+        if (particles.ContainsKey(particleName))
+        {
+            particles[particleName].Stop();
+        }
     }
 
     private void HandleDeathAnimation()

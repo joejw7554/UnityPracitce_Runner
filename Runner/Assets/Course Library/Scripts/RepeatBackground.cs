@@ -18,6 +18,7 @@ public class RepeatBackground : MonoBehaviour
     void Start()
     {
         startPos = transform.position;
+       
     }
 
     void Update()

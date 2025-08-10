@@ -9,6 +9,8 @@ public class ObstacleCollisionHandler : MonoBehaviour, ICollisionHandler
 #if TEST
         Debug.Log($"GameManager Gameover Call Started from {this}");
 #endif 
+
+
         GameManager.Instance.GameOver();
 
     }

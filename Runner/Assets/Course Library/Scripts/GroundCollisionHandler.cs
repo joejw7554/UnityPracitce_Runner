@@ -6,6 +6,10 @@ public class GroundCollisionHandler : MonoBehaviour, ICollisionHandler
     {
         player.isOnGround = true;
 
+        if (player.isOnGround)
+        {
+            player.PlayParticle(ParticleType.Dirt);
+        }
 #if TEST
         Debug.Log("GroundCollisionHandler Handled");
 #endif
